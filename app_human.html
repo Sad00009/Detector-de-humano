@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Humanos Inteligente - IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-primary: #050508;
+            --bg-secondary: rgba(15, 15, 22, 0.75);
+            --border-glow: rgba(139, 92, 246, 0.25);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.5);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --mint: #10b981;
+            --mint-glow: rgba(16, 185, 129, 0.4);
+            --orange: #fb923c;
+            --orange-glow: rgba(251, 146, 60, 0.4);
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto 10px auto;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent), var(--mint));
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 20px var(--border-glow);
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        .logo-title h1 {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #c084fc, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-title p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444; 
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        .status-dot.active {
+            background-color: var(--mint);
+            box-shadow: 0 0 10px var(--mint);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .workspace {
+            flex: 1;
+            width: 95%;
+            max-width: 1400px;
+            margin: 10px auto 30px auto;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        .controls-panel {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            height: fit-content;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 8px;
+        }
+
+        .mode-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 14px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .slider-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .slider-val {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .custom-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: border-color 0.3s;
+        }
+
+        .select-wrapper select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 10px;
+            color: var(--text-secondary);
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 18px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01);
+            transition: all 0.3s;
+        }
+
+        .summary-card.human-detected {
+            border-color: var(--mint);
+            background: rgba(16, 185, 129, 0.03);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1), inset 0 0 20px rgba(16, 185, 129, 0.02);
+        }
+
+        .summary-card.non-human-detected {
+            border-color: var(--orange);
+            background: rgba(251, 146, 60, 0.03);
+            box-shadow: 0 0 20px rgba(251, 146, 60, 0.1), inset 0 0 20px rgba(251, 146, 60, 0.02);
+        }
+
+        .summary-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .summary-result {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .result-human {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-non-human {
+            background: linear-gradient(135deg, #fb923c, #f43f5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .summary-confidence {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .summary-confidence span {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.20);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .stat-item-val {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-item-lbl {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .detections-monitor {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            min-height: 100px;
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detection-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+            font-size: 13px;
+            animation: slide-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .item-label {
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .item-score {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .empty-monitor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-align: center;
+            height: 70px;
+            gap: 8px;
+        }
+
+        .empty-monitor i {
+            font-size: 20px;
+            opacity: 0.5;
+        }
+
+        .viewport-panel {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .viewport-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .viewport-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .viewport-title i {
+            color: var(--accent);
+        }
+
+        .stats-display {
+            display: flex;
+            gap: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-badge span {
+            color: var(--text-primary);
+        }
+
+        .viewport-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 480px;
+            padding: 20px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .dropzone-container {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .dropzone-container:hover, .dropzone-container.drag-over {
+            border-color: var(--accent);
+            background: rgba(139, 92, 246, 0.04);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.1);
+        }
+
+        .dropzone-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .dropzone-container:hover .dropzone-icon {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-5px);
+        }
+
+        .dropzone-text h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .dropzone-text p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: none;
+            max-width: 100%;
+            max-height: 550px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .canvas-wrapper img, .canvas-wrapper video {
+            display: block;
+            max-width: 100%;
+            max-height: 550px;
+            width: auto;
+            height: auto;
+        }
+
+        .canvas-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 8, 0.96);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-ring-inner {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: calc(100% - 12px);
+            height: calc(100% - 12px);
+            border: 3px solid transparent;
+            border-top-color: var(--mint);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        .loading-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, white, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loading-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            background: #9d3bf5;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+            transform: translateY(-2px);
+        }
+
+        .photo-controls-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 15px rgba(139, 92, 246, 0.25); }
+            to { box-shadow: 0 0 25px rgba(139, 92, 246, 0.55), 0 0 10px rgba(16, 185, 129, 0.25); }
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring-inner"></div>
+        </div>
+        <div class="loading-title">Inicializando Detector de Humanos...</div>
+        <div class="loading-subtitle" id="loadingStatus">Carregando WebAssembly e Modelos TFLite...</div>
+    </div>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i data-lucide="scan-eye"></i>
+            </div>
+            <div class="logo-title">
+                <h1>Detector de Humanos</h1>
+                <p>Inteligência Artificial & Visão Computacional</p>
+            </div>
+        </div>
+
+        <div class="status-badge">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Carregando IA...</span>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="controls-panel">
+            <div class="panel-section">
+                <h3><i data-lucide="sliders"></i> Modo de Uso</h3>
+                <div class="mode-tabs">
+                    <button class="tab-btn active" id="tabPhoto" onclick="switchMode('photo')">
+                        <i data-lucide="image"></i> Foto
+                    </button>
+                    <button class="tab-btn" id="tabWebcam" onclick="switchMode('webcam')">
+                        <i data-lucide="video"></i> Webcam
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i data-lucide="settings"></i> Ajustes</h3>
+                <div class="slider-container">
+                    <div class="slider-header">
+                        <span>Confiança Mínima</span>
+                        <span class="slider-val" id="thresholdVal">45%</span>
+                    </div>
+                    <input type="range" class="custom-slider" id="thresholdSlider" min="10" max="95" value="45" oninput="updateThreshold(this.value)">
+                </div>
+
+                <div id="cameraSelectContainer" style="display: none; animation: slide-in 0.3s ease;">
+                    <label style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; font-weight: 600;">Selecione a Câmera</label>
+                    <div class="select-wrapper">
+                        <select id="videoSourceSelect" onchange="changeCamera()"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i data-lucide="pie-chart"></i> Resultado do Classificador</h3>
+                <div class="summary-card" id="summaryCard">
+                    <div class="summary-title">Classificação Geral</div>
+                    <div class="summary-result" id="summaryResult">---</div>
+                    <div class="summary-confidence" id="summaryConfidence">Confiança: <span>0%</span></div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-item-val" id="countHumans">0</span>
+                            <span class="stat-item-lbl">Humanos</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-item-val" id="countNonHumans">0</span>
+                            <span class="stat-item-lbl">Não Humanos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3><i data-lucide="activity"></i> Painel de Detecções</h3>
+                <div class="detections-monitor" id="detectionsMonitor">
+                    <div class="empty-monitor">
+                        <i data-lucide="activity"></i>
+                        <span>Nenhuma detecção ativa.<br>Envie uma imagem ou ligue a webcam.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewport-panel">
+            <div class="viewport-header">
+                <div class="viewport-title" id="viewportTitle">
+                    <i data-lucide="image"></i> <span>Modo Foto</span>
+                </div>
+                <div class="stats-display">
+                    <div class="stat-badge" id="latencyStat" style="display: none;">
+                        <i data-lucide="zap" style="width: 12px; color: var(--cyan);"></i>
+                        Latência: <span id="latencyValue">0 ms</span>
+                    </div>
+                    <div class="stat-badge" id="fpsStat" style="display: none;">
+                        <i data-lucide="cpu" style="width: 12px; color: var(--mint);"></i>
+                        FPS: <span id="fpsValue">0 FPS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viewport-content">
+                <div class="dropzone-container" id="dropzone" onclick="triggerFileInput()">
+                    <div class="dropzone-icon">
+                        <i data-lucide="upload-cloud" style="width: 32px; height: 32px;"></i>
+                    </div>
+                    <div class="dropzone-text">
+                        <h4>Arraste uma foto ou clique aqui</h4>
+                        <p>Suporta arquivos JPG, JPEG e PNG</p>
+                    </div>
+                    <input type="file" class="file-input" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+                </div>
+
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <img id="displayImage" src="" alt="Previsualização" style="display: none;">
+                    <video id="webcamVideo" autoplay playsinline style="display: none;"></video>
+                    <canvas id="overlayCanvas"></canvas>
+                </div>
+            </div>
+
+            <div id="photoControlsRow" class="photo-controls-row" style="position: absolute; bottom: 20px; right: 20px; display: none; z-index: 10;">
+                <button class="btn-action btn-secondary" onclick="resetPhotoMode()">
+                    <i data-lucide="refresh-cw"></i> Escolher Outra Foto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { ObjectDetector, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.mjs";
+
+        let objectDetector = null;
+        let runningMode = "IMAGE";
+        let activeMode = "photo";
+        let threshold = 0.45;
+        let currentImageElement = null;
+        let webcamStream = null;
+        let isWebcamRunning = false;
+        let lastVideoTime = -1;
+        let animationFrameId = null;
+
+        let classificationCache = {};
+        let webcamTrackers = [];
+        let webcamFrameCount = 0;
+        const MAX_TRACKER_DISTANCE = 0.25;
+        const RECLASSIFY_INTERVAL_FRAMES = 15;
+
+        const COLOR_HUMAN = "#10b981";
+        const COLOR_NON_HUMAN = "#fb923c";
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            lucide.createIcons();
+            await initializeModel();
+        });
+
+        async function initializeModel() {
+            try {
+                updateLoadingStatus("Carregando arquivos de visão (WebAssembly)...");
+                const vision = await FilesetResolver.forVisionTasks(
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
+                );
+
+                updateLoadingStatus("Transferindo modelo TFLite de alta performance...");
+                objectDetector = await ObjectDetector.createFromOptions(vision, {
+                    baseOptions: {
+                        modelAssetPath: "models/efficientdet_lite0.tflite"
+                    },
+                    scoreThreshold: threshold,
+                    runningMode: runningMode
+                });
+
+                document.getElementById("statusDot").classList.add("active");
+                document.getElementById("statusText").innerText = "IA Pronta";
+                document.getElementById("loadingOverlay").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("loadingOverlay").style.display = "none";
+                }, 500);
+
+            } catch (err) {
+                console.error("Erro na inicializacao do modelo:", err);
+                updateLoadingStatus("Falha ao carregar o modelo local. Tentando CDN do Google...");
+                try {
+                    const vision = await FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
+                    );
+                    objectDetector = await ObjectDetector.createFromOptions(vision, {
+                        baseOptions: {
+                            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite"
+                        },
+                        scoreThreshold: threshold,
+                        runningMode: runningMode
+                    });
+                    document.getElementById("statusDot").classList.add("active");
+                    document.getElementById("statusText").innerText = "IA Pronta (CDN)";
+                    document.getElementById("loadingOverlay").style.opacity = "0";
+                    setTimeout(() => {
+                        document.getElementById("loadingOverlay").style.display = "none";
+                    }, 500);
+                } catch (e) {
+                    updateLoadingStatus("Erro Fatal: Não foi possível carregar os modelos.");
+                    document.getElementById("statusText").innerText = "Falha Crítica";
+                }
+            }
+        }
+
+        function updateLoadingStatus(text) {
+            document.getElementById("loadingStatus").innerText = text;
+        }
+
+        window.switchMode = async (mode) => {
+            if (mode === activeMode) return;
+            activeMode = mode;
+
+            document.getElementById("tabPhoto").classList.toggle("active", mode === 'photo');
+            document.getElementById("tabWebcam").classList.toggle("active", mode === 'webcam');
+
+            stopWebcamStream();
+            resetPhotoMode();
+
+            if (mode === 'photo') {
+                runningMode = "IMAGE";
+                document.getElementById("viewportTitle").innerHTML = '<i data-lucide="image"></i> <span>Modo Foto</span>';
+                document.getElementById("cameraSelectContainer").style.display = "none";
+                document.getElementById("latencyStat").style.display = "none";
+                document.getElementById("fpsStat").style.display = "none";
+                document.getElementById("dropzone").style.display = "flex";
+                document.getElementById("canvasWrapper").style.display = "none";
+                document.getElementById("photoControlsRow").style.display = "none";
+                await updateDetectorRunningMode("IMAGE");
+            } else {
+                runningMode = "VIDEO";
+                document.getElementById("viewportTitle").innerHTML = '<i data-lucide="video"></i> <span>Modo Webcam</span>';
+                document.getElementById("cameraSelectContainer").style.display = "block";
+                document.getElementById("dropzone").style.display = "none";
+                document.getElementById("canvasWrapper").style.display = "block";
+                document.getElementById("displayImage").style.display = "none";
+                document.getElementById("webcamVideo").style.display = "block";
+                await updateDetectorRunningMode("VIDEO");
+                await setupWebcam();
+            }
+            lucide.createIcons();
+        };
+
+        async function updateDetectorRunningMode(mode) {
+            if (!objectDetector) return;
+            const currentThreshold = threshold;
+            document.getElementById("statusText").innerText = "Reconfigurando...";
+            document.getElementById("statusDot").classList.remove("active");
+            
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
+            );
+            objectDetector = await ObjectDetector.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "models/efficientdet_lite0.tflite"
+                },
+                scoreThreshold: currentThreshold,
+                runningMode: mode
+            });
+            document.getElementById("statusDot").classList.add("active");
+            document.getElementById("statusText").innerText = "IA Pronta";
+        }
+
+        async function classifyCrop(sourceElement, bbox) {
+            const tempCanvas = document.createElement("canvas");
+            let x = Math.max(0, bbox.origin_x);
+            let y = Math.max(0, bbox.origin_y);
+            let w = bbox.width;
+            let h = bbox.height;
+
+            let nativeWidth = 0;
+            let nativeHeight = 0;
+            if (sourceElement.tagName === "IMG") {
+                nativeWidth = sourceElement.naturalWidth;
+                nativeHeight = sourceElement.naturalHeight;
+            } else {
+                nativeWidth = sourceElement.videoWidth;
+                nativeHeight = sourceElement.videoHeight;
+            }
+
+            w = Math.min(w, nativeWidth - x);
+            h = Math.min(h, nativeHeight - y);
+
+            if (w <= 0 || h <= 0) return null;
+
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+
+            const tempCtx = tempCanvas.getContext("2d");
+            tempCtx.drawImage(
+                sourceElement,
+                x, y, w, h,
+                0, 0, w, h
+            );
+
+            const base64Image = tempCanvas.toDataURL("image/jpeg", 0.85);
+
+            try {
+                const response = await fetch("http://localhost:8000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ image: base64Image })
+                });
+                if (!response.ok) return null;
+                return await response.json();
+            } catch (err) {
+                console.error("[!] Erro de predição:", err);
+                return null;
+            }
+        }
+
+        async function classifyFullImage(sourceElement) {
+            const tempCanvas = document.createElement("canvas");
+            let nativeWidth = 0;
+            let nativeHeight = 0;
+            if (sourceElement.tagName === "IMG") {
+                nativeWidth = sourceElement.naturalWidth;
+                nativeHeight = sourceElement.naturalHeight;
+            } else {
+                nativeWidth = sourceElement.videoWidth;
+                nativeHeight = sourceElement.videoHeight;
+            }
+
+            tempCanvas.width = Math.min(nativeWidth, 300);
+            tempCanvas.height = Math.min(nativeHeight, 300);
+
+            const tempCtx = tempCanvas.getContext("2d");
+            tempCtx.drawImage(sourceElement, 0, 0, tempCanvas.width, tempCanvas.height);
+            const base64Image = tempCanvas.toDataURL("image/jpeg", 0.80);
+
+            try {
+                const response = await fetch("http://localhost:8000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ image: base64Image })
+                });
+                if (!response.ok) return null;
+                return await response.json();
+            } catch (err) {
+                return null;
+            }
+        }
+
+        window.triggerFileInput = () => {
+            document.getElementById("fileInput").click();
+        };
+
+        window.handleFileSelect = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            processSelectedImageFile(file);
+        };
+
+        const dropzone = document.getElementById("dropzone");
+        dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropzone.classList.add("drag-over");
+        });
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("drag-over");
+        });
+        dropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropzone.classList.remove("drag-over");
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith("image/")) {
+                processSelectedImageFile(file);
+            }
+        });
+
+        function processSelectedImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById("displayImage");
+                img.src = e.target.result;
+                img.onload = () => {
+                    currentImageElement = img;
+                    document.getElementById("dropzone").style.display = "none";
+                    document.getElementById("canvasWrapper").style.display = "block";
+                    img.style.display = "block";
+                    document.getElementById("photoControlsRow").style.display = "flex";
+                    document.getElementById("latencyStat").style.display = "flex";
+                    runStaticImageDetection(img);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.resetPhotoMode = () => {
+            currentImageElement = null;
+            document.getElementById("displayImage").src = "";
+            document.getElementById("displayImage").style.display = "none";
+            document.getElementById("canvasWrapper").style.display = "none";
+            document.getElementById("dropzone").style.display = "flex";
+            document.getElementById("photoControlsRow").style.display = "none";
+            document.getElementById("fileInput").value = "";
+            document.getElementById("latencyStat").style.display = "none";
+            classificationCache = {};
+            clearCanvas();
+            resetDetectionsMonitor();
+            resetSummaryCard();
+        };
+
+        async function runStaticImageDetection(imageElement) {
+            if (!objectDetector) return;
+
+            const t0 = performance.now();
+            const results = await objectDetector.detect(imageElement);
+            const t1 = performance.now();
+
+            const latency = Math.round(t1 - t0);
+            document.getElementById("latencyValue").innerText = `${latency} ms`;
+
+            classificationCache = {};
+
+            const detections = results.detections || [];
+            let numHumans = 0;
+            let numNonHumans = 0;
+            
+            const classificationPromises = detections.map(async (detection, idx) => {
+                const bbox = detection.bounding_box;
+                const catName = detection.categories[0].category_name;
+                
+                if (catName === 'person') {
+                    const res = await classifyCrop(imageElement, bbox);
+                    if (res && !res.error) {
+                        classificationCache[idx] = res;
+                        if (res.prediction === 'Humano') {
+                            numHumans++;
+                            detection.categories[0].category_name = `Humano (${res.confidence}%)`;
+                            detection.isHuman = true;
+                        } else {
+                            numNonHumans++;
+                            detection.categories[0].category_name = `Não Humano (SVM: ${res.confidence}%)`;
+                            detection.isHuman = false;
+                        }
+                    } else {
+                        numHumans++;
+                        detection.categories[0].category_name = `Humano (Detetor)`;
+                        detection.isHuman = true;
+                    }
+                } else {
+                    numNonHumans++;
+                    const ptLabel = translateLabel(catName);
+                    detection.categories[0].category_name = `Não Humano (${ptLabel})`;
+                    detection.isHuman = false;
+                }
+            });
+
+            await Promise.all(classificationPromises);
+
+            let globalPrediction = "Não Humano";
+            let globalConfidence = 50.0;
+            
+            if (numHumans > 0) {
+                globalPrediction = "Humano";
+                let maxConf = 0;
+                for (let key in classificationCache) {
+                    if (classificationCache[key].prediction === 'Humano' && classificationCache[key].confidence > maxConf) {
+                        maxConf = classificationCache[key].confidence;
+                    }
+                }
+                globalConfidence = maxConf || 95.0;
+            } else {
+                const globalRes = await classifyFullImage(imageElement);
+                if (globalRes && !globalRes.error) {
+                    globalPrediction = globalRes.prediction;
+                    globalConfidence = globalRes.confidence;
+                } else if (numNonHumans > 0) {
+                    globalPrediction = "Não Humano";
+                    globalConfidence = 85.0;
+                }
+            }
+
+            updateSummaryCard(globalPrediction, globalConfidence, numHumans, numNonHumans);
+            drawDetections(results, imageElement.naturalWidth, imageElement.naturalHeight);
+            updateDetectionsMonitor(results);
+        }
+
+        function translateLabel(label) {
+            const translations = {
+                'cat': 'Gato', 'dog': 'Cachorro', 'bird': 'Pássaro', 'horse': 'Cavalo',
+                'sheep': 'Ovelha', 'cow': 'Vaca', 'elephant': 'Elefante', 'bear': 'Urso',
+                'zebra': 'Zebra', 'giraffe': 'Girafa', 'backpack': 'Mochila', 'umbrella': 'Guarda-chuva',
+                'handbag': 'Bolsa', 'tie': 'Gravata', 'suitcase': 'Mala', 'frisbee': 'Frisbee',
+                'skis': 'Esquis', 'snowboard': 'Snowboard', 'sports ball': 'Bola de esporte', 'kite': 'Pipa',
+                'baseball bat': 'Taco de beisebol', 'baseball glove': 'Luva de beisebol', 'skateboard': 'Skate',
+                'surfboard': 'Prancha de surf', 'tennis racket': 'Raquete de tênis', 'bottle': 'Garrafa',
+                'wine glass': 'Taça', 'cup': 'Copo', 'fork': 'Garfo', 'knife': 'Faca', 'spoon': 'Colher',
+                'bowl': 'Tigela', 'banana': 'Banana', 'apple': 'Maçã', 'sandwich': 'Sanduíche',
+                'orange': 'Laranja', 'broccoli': 'Brócolis', 'carrot': 'Cenoura', 'hot dog': 'Cachorro-quente',
+                'pizza': 'Pizza', 'donut': 'Donut', 'cake': 'Bolo', 'chair': 'Cadeira', 'couch': 'Sofá',
+                'potted plant': 'Vaso de planta', 'bed': 'Cama', 'dining table': 'Mesa de jantar',
+                'toilet': 'Vaso sanitário', 'tv': 'Televisão', 'laptop': 'Notebook', 'mouse': 'Mouse',
+                'remote': 'Controle remoto', 'keyboard': 'Teclado', 'cell phone': 'Celular',
+                'microwave': 'Microondas', 'oven': 'Forno', 'toaster': 'Torradeira', 'sink': 'Pia',
+                'refrigerator': 'Geladeira', 'book': 'Livro', 'clock': 'Relógio', 'vase': 'Vaso',
+                'scissors': 'Tesoura', 'teddy bear': 'Urso de pelúcia', 'hair drier': 'Secador de cabelo',
+                'toothbrush': 'Escova de dente', 'bicycle': 'Bicicleta', 'car': 'Carro', 'motorcycle': 'Moto',
+                'airplane': 'Avião', 'bus': 'Ônibus', 'train': 'Trem', 'truck': 'Caminhão', 'boat': 'Barco',
+                'traffic light': 'Semáforo', 'fire hydrant': 'Hidrante', 'stop sign': 'Placa de Pare'
+            };
+            return translations[label.toLowerCase()] || label;
+        }
+
+        async function setupWebcam() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                const select = document.getElementById("videoSourceSelect");
+                
+                select.innerHTML = "";
+                videoDevices.forEach((device, index) => {
+                    const option = document.createElement("option");
+                    option.value = device.deviceId;
+                    option.text = device.label || `Câmera ${index + 1}`;
+                    select.appendChild(option);
+                });
+
+                webcamTrackers = [];
+                await startWebcamStream();
+            } catch (err) {
+                console.error("Erro ao configurar dispositivos de captura:", err);
+                alert("Não foi possível acessar a câmera.");
+            }
+        }
+
+        async function startWebcamStream() {
+            stopWebcamStream();
+
+            const select = document.getElementById("videoSourceSelect");
+            const deviceId = select.value;
+            const constraints = {
+                video: deviceId ? { deviceId: { exact: deviceId } } : true
+            };
+
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById("webcamVideo");
+                video.srcObject = webcamStream;
+                video.addEventListener("loadeddata", () => {
+                    isWebcamRunning = true;
+                    document.getElementById("fpsStat").style.display = "flex";
+                    animationFrameId = requestAnimationFrame(webcamDetectionLoop);
+                });
+            } catch (err) {
+                console.error("Erro ao iniciar webcam:", err);
+            }
+        }
+
+        function stopWebcamStream() {
+            isWebcamRunning = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+            const video = document.getElementById("webcamVideo");
+            video.srcObject = null;
+            lastVideoTime = -1;
+            webcamTrackers = [];
+        }
+
+        window.changeCamera = async () => {
+            await startWebcamStream();
+        };
+
+        let frameCount = 0;
+        let lastFpsUpdateTime = 0;
+        let currentFps = 0;
+
+        async function webcamDetectionLoop() {
+            if (!isWebcamRunning || !objectDetector) return;
+
+            const video = document.getElementById("webcamVideo");
+            
+            if (video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+                webcamFrameCount++;
+                
+                const startTimeMs = performance.now();
+                const results = await objectDetector.detectForVideo(video, startTimeMs);
+                
+                const detections = results.detections || [];
+                const w = video.videoWidth;
+                const h = video.videoHeight;
+                
+                let numHumans = 0;
+                let numNonHumans = 0;
+                
+                for (let detection of detections) {
+                    const bbox = detection.bounding_box;
+                    const catName = detection.categories[0].category_name;
+                    
+                    if (catName === 'person' || catName.startsWith('Humano') || catName.startsWith('Não Humano')) {
+                        const cx = (bbox.origin_x + bbox.width / 2) / w;
+                        const cy = (bbox.origin_y + bbox.height / 2) / h;
+                        
+                        let bestTracker = null;
+                        let minDistance = MAX_TRACKER_DISTANCE;
+                        
+                        for (let tracker of webcamTrackers) {
+                            const dist = Math.sqrt(Math.pow(tracker.cx - cx, 2) + Math.pow(tracker.cy - cy, 2));
+                            if (dist < minDistance) {
+                                minDistance = dist;
+                                bestTracker = tracker;
+                            }
+                        }
+                        
+                        if (bestTracker) {
+                            bestTracker.cx = cx;
+                            bestTracker.cy = cy;
+                            bestTracker.bbox = bbox;
+                            bestTracker.matchedThisFrame = true;
+                            
+                            if ((webcamFrameCount - bestTracker.lastClassifiedFrame >= RECLASSIFY_INTERVAL_FRAMES) && !bestTracker.isClassifying) {
+                                bestTracker.isClassifying = true;
+                                classifyCrop(video, bbox).then(res => {
+                                    if (res && !res.error) {
+                                        bestTracker.prediction = res.prediction;
+                                        bestTracker.confidence = res.confidence;
+                                        bestTracker.lastClassifiedFrame = webcamFrameCount;
+                                    }
+                                    bestTracker.isClassifying = false;
+                                });
+                            }
+                            
+                            if (bestTracker.prediction === "Humano") {
+                                numHumans++;
+                                detection.isHuman = true;
+                            } else {
+                                numNonHumans++;
+                                detection.isHuman = false;
+                            }
+                            
+                            detection.categories[0].category_name = `${bestTracker.prediction} (${bestTracker.confidence}%)`;
+                            
+                        } else {
+                            const newTracker = {
+                                cx: cx,
+                                cy: cy,
+                                bbox: bbox,
+                                prediction: "Verificando...",
+                                confidence: 50.0,
+                                lastClassifiedFrame: webcamFrameCount,
+                                isClassifying: true,
+                                matchedThisFrame: true
+                            };
+                            
+                            classifyCrop(video, bbox).then(res => {
+                                if (res && !res.error) {
+                                    newTracker.prediction = res.prediction;
+                                    newTracker.confidence = res.confidence;
+                                } else {
+                                    newTracker.prediction = "Humano";
+                                }
+                                newTracker.isClassifying = false;
+                            });
+                            
+                            webcamTrackers.push(newTracker);
+                            detection.categories[0].category_name = "Processando...";
+                            detection.isHuman = true;
+                            numHumans++;
+                        }
+                    } else {
+                        numNonHumans++;
+                        const ptLabel = translateLabel(catName);
+                        detection.categories[0].category_name = `Não Humano (${ptLabel})`;
+                        detection.isHuman = false;
+                    }
+                }
+                
+                webcamTrackers = webcamTrackers.filter(t => t.matchedThisFrame);
+                webcamTrackers.forEach(t => t.matchedThisFrame = false);
+                
+                let globalPrediction = "Não Humano";
+                let globalConfidence = 50.0;
+                
+                if (numHumans > 0) {
+                    globalPrediction = "Humano";
+                    let maxConf = 0;
+                    webcamTrackers.forEach(t => {
+                        if (t.prediction === "Humano" && t.confidence > maxConf) {
+                            maxConf = t.confidence;
+                        }
+                    });
+                    globalConfidence = maxConf || 95.0;
+                } else if (numNonHumans > 0) {
+                    globalPrediction = "Não Humano";
+                    globalConfidence = 90.0;
+                }
+                
+                updateSummaryCard(globalPrediction, globalConfidence, numHumans, numNonHumans);
+                drawDetections(results, video.videoWidth, video.videoHeight);
+                updateDetectionsMonitor(results);
+
+                frameCount++;
+                const now = performance.now();
+                if (now - lastFpsUpdateTime >= 1000) {
+                    currentFps = Math.round((frameCount * 1000) / (now - lastFpsUpdateTime));
+                    document.getElementById("fpsValue").innerText = `${currentFps} FPS`;
+                    frameCount = 0;
+                    lastFpsUpdateTime = now;
+                }
+            }
+
+            if (isWebcamRunning) {
+                animationFrameId = requestAnimationFrame(webcamDetectionLoop);
+            }
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById("overlayCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawDetections(detectionResult, originalWidth, originalHeight) {
+            const canvas = document.getElementById("overlayCanvas");
+            const ctx = canvas.getContext("2d");
+
+            canvas.width = originalWidth;
+            canvas.height = originalHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const detections = detectionResult.detections;
+            if (!detections) return;
+
+            detections.forEach((detection) => {
+                const bbox = detection.bounding_box;
+                const startX = bbox.origin_x;
+                const startY = bbox.origin_y;
+                const width = bbox.width;
+                const height = bbox.height;
+
+                const category = detection.categories[0];
+                const label = category.category_name;
+                const score = category.score;
+
+                const isHuman = detection.isHuman;
+                const color = isHuman ? COLOR_HUMAN : COLOR_NON_HUMAN;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = Math.max(4, Math.round(canvas.width / 220));
+                ctx.strokeRect(startX, startY, width, height);
+
+                const tagText = label.includes("(") ? label : `${label} (${Math.round(score * 100)}%)`;
+                ctx.font = `600 ${Math.max(12, Math.round(canvas.width / 65))}px 'Outfit', sans-serif`;
+                
+                const textMetrics = ctx.measureText(tagText);
+                const textWidth = textMetrics.width;
+                const textHeight = Math.max(12, Math.round(canvas.width / 65));
+
+                const paddingX = 14;
+                const paddingY = 8;
+                
+                const badgeX = startX;
+                const badgeY = Math.max(0, startY - textHeight - (paddingY * 2));
+                const badgeWidth = textWidth + (paddingX * 2);
+                const badgeHeight = textHeight + (paddingY * 2);
+
+                ctx.fillStyle = color;
+                ctx.fillRect(badgeX, badgeY, badgeWidth, badgeHeight);
+
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(tagText, badgeX + paddingX, badgeY + textHeight + paddingY - 2);
+            });
+        }
+
+        function updateDetectionsMonitor(detectionResult) {
+            const monitor = document.getElementById("detectionsMonitor");
+            const detections = detectionResult.detections;
+
+            if (!detections || detections.length === 0) {
+                resetDetectionsMonitor();
+                return;
+            }
+
+            monitor.innerHTML = "";
+            detections.forEach((detection) => {
+                const category = detection.categories[0];
+                const label = category.category_name;
+                const score = category.score;
+                const isHuman = detection.isHuman;
+                const color = isHuman ? COLOR_HUMAN : COLOR_NON_HUMAN;
+
+                const labelToShow = label.includes("(") ? label.split(" (")[0] : label;
+                const scoreToShow = label.includes("(") ? label.split(" (")[1].replace(")", "") : `${Math.round(score * 100)}%`;
+
+                const item = document.createElement("div");
+                item.className = "detection-item";
+                item.style.borderLeftColor = color;
+                item.innerHTML = `
+                    <span class="item-label" style="color: ${color};">${labelToShow}</span>
+                    <span class="item-score">${scoreToShow}</span>
+                `;
+                monitor.appendChild(item);
+            });
+        }
+
+        function resetDetectionsMonitor() {
+            const monitor = document.getElementById("detectionsMonitor");
+            monitor.innerHTML = `
+                <div class="empty-monitor">
+                    <i data-lucide="activity"></i>
+                    <span>Nenhuma detecção ativa.<br>Envie uma imagem ou ligue a webcam.</span>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function updateSummaryCard(prediction, confidence, numHumans, numNonHumans) {
+            const card = document.getElementById("summaryCard");
+            const resEl = document.getElementById("summaryResult");
+            const confEl = document.querySelector("#summaryConfidence span");
+            
+            document.getElementById("countHumans").innerText = numHumans;
+            document.getElementById("countNonHumans").innerText = numNonHumans;
+            
+            card.classList.remove("human-detected", "non-human-detected");
+            
+            if (prediction === "Humano") {
+                card.classList.add("human-detected");
+                resEl.innerHTML = `<span class="result-human">HUMANO</span>`;
+            } else {
+                card.classList.add("non-human-detected");
+                resEl.innerHTML = `<span class="result-non-human">NÃO HUMANO</span>`;
+            }
+            confEl.innerText = `${confidence.toFixed(1)}%`;
+        }
+
+        function resetSummaryCard() {
+            const card = document.getElementById("summaryCard");
+            const resEl = document.getElementById("summaryResult");
+            const confEl = document.querySelector("#summaryConfidence span");
+            
+            card.classList.remove("human-detected", "non-human-detected");
+            resEl.innerText = "---";
+            confEl.innerText = "0%";
+            document.getElementById("countHumans").innerText = "0";
+            document.getElementById("countNonHumans").innerText = "0";
+        }
+
+        window.updateThreshold = async (value) => {
+            threshold = parseFloat(value) / 100;
+            document.getElementById("thresholdVal").innerText = `${value}%`;
+
+            if (objectDetector) {
+                await updateDetectorThresholdOnly();
+                if (runningMode === "IMAGE" && currentImageElement) {
+                    runStaticImageDetection(currentImageElement);
+                }
+            }
+        };
+
+        async function updateDetectorThresholdOnly() {
+            if (!objectDetector) return;
+            const currentMode = runningMode;
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
+            );
+            objectDetector = await ObjectDetector.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "models/efficientdet_lite0.tflite"
+                },
+                scoreThreshold: threshold,
+                runningMode: currentMode
+            });
+        }
+    </script>
+</body>
+</html>
